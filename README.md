@@ -63,3 +63,6 @@ Generate customer and product reports in PDF format.
 
 🎨 Simple Frontend: Styled with custom CSS for basic UI interaction.
 
+
+NOTE: NO NODE MODULES INCLUDED
+

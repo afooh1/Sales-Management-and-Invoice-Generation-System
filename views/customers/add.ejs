@@ -1,0 +1,72 @@
+<%- include('../partials/header') %>
+
+    <h1 class="page-title">Add New Customer</h1>
+
+    <% if (typeof error !=='undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+        <% } %>
+
+            <div class="form-container">
+                <h2 class="form-title">Customer Information</h2>
+
+                <form action="/customers/add" method="POST" data-validate="true">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customerID" class="form-label">Customer ID *</label>
+                            <input type="text" id="customerID" name="customerID" class="form-control" required
+                                value="<%= typeof customer !== 'undefined' ? customer.customerID || '' : '' %>">
+                            <div id="error-customerID" class="form-error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name" class="form-label">Full Name *</label>
+                            <input type="text" id="name" name="name" class="form-control" required
+                                value="<%= typeof customer !== 'undefined' ? customer.name || '' : '' %>">
+                            <div id="error-name" class="form-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" id="email" name="email" class="form-control" required
+                                value="<%= typeof customer !== 'undefined' ? customer.email || '' : '' %>">
+                            <div id="error-email" class="form-error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Phone *</label>
+                            <input type="tel" id="phone" name="phone" class="form-control" required
+                                value="<%= typeof customer !== 'undefined' ? customer.phone || '' : '' %>">
+                            <div id="error-phone" class="form-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address" class="form-label">Address *</label>
+                        <textarea id="address" name="address" class="form-control" rows="3"
+                            required><%= typeof customer !== 'undefined' ? customer.address || '' : '' %></textarea>
+                        <div id="error-address" class="form-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loyaltyPoints" class="form-label">Loyalty Points</label>
+                        <input type="number" id="loyaltyPoints" name="loyaltyPoints" class="form-control" min="0"
+                            value="<%= typeof customer !== 'undefined' ? customer.loyaltyPoints || 0 : 0 %>">
+                        <div id="error-loyaltyPoints" class="form-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Customer
+                        </button>
+                        <a href="/customers" class="btn btn-warning">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <%- include('../partials/footer') %>

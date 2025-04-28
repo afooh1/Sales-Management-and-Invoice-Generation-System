@@ -1,0 +1,165 @@
+<%- include('partials/header') %>
+
+    <h1 class="page-title">Dashboard</h1>
+
+    <div class="dashboard">
+        <div class="widget">
+            <div class="widget-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3 class="widget-title">Total Customers</h3>
+            <p class="widget-value" id="customer-count">
+                <%= stats?.customerCount || 0 %>
+            </p>
+        </div>
+
+        <div class="widget">
+            <div class="widget-icon">
+                <i class="fas fa-laptop"></i>
+            </div>
+            <h3 class="widget-title">Total Products</h3>
+            <p class="widget-value" id="product-count">
+                <%= stats?.productCount || 0 %>
+            </p>
+        </div>
+
+        <div class="widget">
+            <div class="widget-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <h3 class="widget-title">Total Sales</h3>
+            <p class="widget-value" id="sales-count">
+                <%= stats?.salesCount || 0 %>
+            </p>
+        </div>
+
+        <div class="widget">
+            <div class="widget-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <h3 class="widget-title">Total Revenue</h3>
+            <p class="widget-value" id="revenue">$<%= stats?.totalRevenue?.toFixed(2) || '0.00' %>
+            </p>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <h2 class="table-title">Recent Sales</h2>
+            <div class="table-actions">
+                <a href="/sales" class="btn btn-primary">View All Sales</a>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (recentSales && recentSales.length> 0) { %>
+                    <% recentSales.forEach(sale=> { %>
+                        <tr>
+                            <td>
+                                <%= sale.saleID %>
+                            </td>
+                            <td>
+                                <%= new Date(sale.saleDate).toLocaleDateString() %>
+                            </td>
+                            <td>
+                                <%= sale.customer.name %>
+                            </td>
+                            <td>$<%= sale.totalAmount.toFixed(2) %>
+                            </td>
+                            <td>
+                                <% let badgeClass='badge-info' ; %>
+                                    <% if (sale.status==='Completed' ) badgeClass='badge-success' ; %>
+                                        <% if (sale.status==='Pending' ) badgeClass='badge-warning' ; %>
+                                            <% if (sale.status==='Cancelled' ) badgeClass='badge-danger' ; %>
+                                                <span class="badge <%= badgeClass %>">
+                                                    <%= sale.status %>
+                                                </span>
+                            </td>
+                            <td>
+                                <a href="/pdf/invoice/<%= sale._id %>" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-file-pdf"></i> Invoice
+                                </a>
+                            </td>
+                        </tr>
+                        <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" style="text-align: center;">No recent sales</td>
+                                </tr>
+                                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <h2 class="table-title">Low Stock Products</h2>
+            <div class="table-actions">
+                <a href="/products" class="btn btn-primary">View All Products</a>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (lowStockProducts && lowStockProducts.length> 0) { %>
+                    <% lowStockProducts.forEach(product=> { %>
+                        <tr>
+                            <td>
+                                <%= product.productID %>
+                            </td>
+                            <td>
+                                <%= product.name %>
+                            </td>
+                            <td>
+                                <%= product.category %>
+                            </td>
+                            <td>
+                                <%= product.stock %>
+                            </td>
+                            <td>
+                                <% let badgeClass='badge-success' ; %>
+                                    <% if (product.stock===0) badgeClass='badge-danger' ; %>
+                                        <% if (product.stock> 0 && product.stock < 10) badgeClass='badge-warning' ; %>
+                                                <span class="badge <%= badgeClass %>">
+                                                    <%= product.stock===0 ? 'Out of Stock' : (product.stock < 10
+                                                        ? 'Low Stock' : 'In Stock' ) %>
+                                                </span>
+                            </td>
+                            <td>
+                                <a href="/products/edit/<%= product._id %>" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            </td>
+                        </tr>
+                        <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" style="text-align: center;">No low stock products</td>
+                                </tr>
+                                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <%- include('partials/footer') %>

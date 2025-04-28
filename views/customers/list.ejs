@@ -1,0 +1,99 @@
+<%- include('../partials/header') %>
+
+    <h1 class="page-title">Customer Management</h1>
+
+    <% if (typeof message !=='undefined' && message) { %>
+        <div class="alert alert-<%= messageType || 'info' %>">
+            <%= message %>
+        </div>
+        <% } %>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2 class="table-title">Customers</h2>
+                    <div class="table-actions">
+                        <input type="text" id="search-customer" class="search-input" placeholder="Search customers...">
+                        <a href="/customers/add" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Customer
+                        </a>
+                        <a href="/pdf/customers" class="btn btn-success">
+                            <i class="fas fa-file-pdf"></i> Generate Report
+                        </a>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Loyalty Points</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customer-table-body">
+                        <% if (customers && customers.length> 0) { %>
+                            <% customers.forEach(customer=> { %>
+                                <tr>
+                                    <td>
+                                        <%= customer.customerID %>
+                                    </td>
+                                    <td>
+                                        <%= customer.name %>
+                                    </td>
+                                    <td>
+                                        <%= customer.email %>
+                                    </td>
+                                    <td>
+                                        <%= customer.phone %>
+                                    </td>
+                                    <td>
+                                        <%= customer.loyaltyPoints %>
+                                    </td>
+                                    <td>
+                                        <a href="/customers/edit/<%= customer._id %>" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <button class="btn btn-sm btn-danger delete-btn" data-id="<%= customer._id %>"
+                                            data-type="customer">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="6" style="text-align: center;">No customers found</td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <script>
+                // Search functionality
+                document.getElementById('search-customer').addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.getElementById('customer-table-body').getElementsByTagName('tr');
+
+                    for (let i = 0; i < rows.length; i++) {
+                        const customerID = rows[i].cells[0]?.textContent.toLowerCase() || '';
+                        const name = rows[i].cells[1]?.textContent.toLowerCase() || '';
+                        const email = rows[i].cells[2]?.textContent.toLowerCase() || '';
+                        const phone = rows[i].cells[3]?.textContent.toLowerCase() || '';
+
+                        if (customerID.includes(searchTerm) ||
+                            name.includes(searchTerm) ||
+                            email.includes(searchTerm) ||
+                            phone.includes(searchTerm)) {
+                            rows[i].style.display = '';
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                });
+            </script>
+
+            <%- include('../partials/footer') %>

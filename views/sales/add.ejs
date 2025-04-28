@@ -1,0 +1,253 @@
+<%- include('../partials/header') %>
+
+    <h1 class="page-title">New Sale</h1>
+
+    <% if (typeof error !=='undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+        <% } %>
+
+            <div class="form-container">
+                <h2 class="form-title">Sale Information</h2>
+
+                <form action="/sales/add" method="POST" data-validate="true">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="saleID" class="form-label">Sale ID *</label>
+                            <input type="text" id="saleID" name="saleID" class="form-control" required
+                                value="<%= typeof sale !== 'undefined' ? sale.saleID || '' : '' %>">
+                            <div id="error-saleID" class="form-error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customer" class="form-label">Customer *</label>
+                            <select id="customer" name="customer" class="form-control" required>
+                                <option value="">Select Customer</option>
+                                <% if (customers && customers.length> 0) { %>
+                                    <% customers.forEach(customer=> { %>
+                                        <option value="<%= customer._id %>" <%=(sale && sale.customer &&
+                                            sale.customer._id==customer._id) ? 'selected' : '' %>>
+                                            <%= customer.name %> (<%= customer.customerID %>)
+                                        </option>
+                                        <% }); %>
+                                            <% } %>
+                            </select>
+                            <div id="error-customer" class="form-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="saleDate" class="form-label">Sale Date</label>
+                            <input type="date" id="saleDate" name="saleDate" class="form-control" value="<%= typeof sale !== 'undefined' && sale.saleDate ? 
+                           new Date(sale.saleDate).toISOString().split('T')[0] : 
+                           new Date().toISOString().split('T')[0] %>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="paymentMethod" class="form-label">Payment Method *</label>
+                            <select id="paymentMethod" name="paymentMethod" class="form-control" required>
+                                <option value="Cash" <%=(sale && sale.paymentMethod==='Cash' ) ? 'selected' : '' %>>Cash
+                                </option>
+                                <option value="Credit Card" <%=(sale && sale.paymentMethod==='Credit Card' )
+                                    ? 'selected' : '' %>>Credit Card</option>
+                                <option value="Debit Card" <%=(sale && sale.paymentMethod==='Debit Card' ) ? 'selected'
+                                    : '' %>>Debit Card</option>
+                                <option value="Bank Transfer" <%=(sale && sale.paymentMethod==='Bank Transfer' )
+                                    ? 'selected' : '' %>>Bank Transfer</option>
+                                <option value="PayPal" <%=(sale && sale.paymentMethod==='PayPal' ) ? 'selected' : '' %>
+                                    >PayPal</option>
+                            </select>
+                            <div id="error-paymentMethod" class="form-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" name="status" class="form-control">
+                            <option value="Completed" <%=(sale && sale.status==='Completed' ) ? 'selected' : '' %>
+                                >Completed</option>
+                            <option value="Pending" <%=(sale && sale.status==='Pending' ) ? 'selected' : '' %>>Pending
+                            </option>
+                            <option value="Cancelled" <%=(sale && sale.status==='Cancelled' ) ? 'selected' : '' %>
+                                >Cancelled</option>
+                        </select>
+                    </div>
+
+                    <h3 style="margin-top: 20px; margin-bottom: 10px;">Sale Items</h3>
+
+                    <div id="sale-items" class="sale-items">
+                        <div class="item-row">
+                            <div class="form-group item-product">
+                                <label class="form-label">Product *</label>
+                                <select name="items[product][]" class="form-control product-select" required>
+                                    <option value="">Select Product</option>
+                                    <% if (products && products.length> 0) { %>
+                                        <% products.forEach(product=> { %>
+                                            <option value="<%= product._id %>" data-price="<%= product.price %>">
+                                                <%= product.name %> - $<%= product.price.toFixed(2) %> (<%=
+                                                            product.stock %> in stock)
+                                            </option>
+                                            <% }); %>
+                                                <% } %>
+                                </select>
+                            </div>
+
+                            <div class="form-group item-quantity">
+                                <label class="form-label">Quantity</label>
+                                <input type="number" name="items[quantity][]" class="form-control quantity-input"
+                                    min="1" value="1" required>
+                            </div>
+
+                            <div class="form-group item-price">
+                                <label class="form-label">Price</label>
+                                <input type="number" name="items[price][]" class="form-control price-input" step="0.01"
+                                    readonly>
+                            </div>
+
+                            <div class="form-group item-subtotal">
+                                <label class="form-label">Subtotal</label>
+                                <input type="number" name="items[subtotal][]" class="form-control subtotal-input"
+                                    step="0.01" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="add-item-btn" class="btn btn-info add-item-btn">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+
+                    <div class="form-row" style="margin-top: 20px;">
+                        <div class="form-group" style="margin-left: auto; width: 200px;">
+                            <label for="total-amount" class="form-label">Total Amount ($)</label>
+                            <input type="number" id="total-amount" name="totalAmount" class="form-control" step="0.01"
+                                readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Complete Sale
+                        </button>
+                        <a href="/sales" class="btn btn-warning">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <script>
+                // Initialize the sale form when the page loads
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Initial calculation of prices and subtotals
+                    updateSubtotals();
+                });
+
+                // Function to update prices and subtotals
+                function updateSubtotals() {
+                    const itemRows = document.querySelectorAll('.item-row');
+                    let total = 0;
+
+                    itemRows.forEach(row => {
+                        const productSelect = row.querySelector('.product-select');
+                        const quantityInput = row.querySelector('.quantity-input');
+                        const priceInput = row.querySelector('.price-input');
+                        const subtotalInput = row.querySelector('.subtotal-input');
+
+                        if (productSelect && quantityInput && priceInput && subtotalInput) {
+                            const selectedOption = productSelect.options[productSelect.selectedIndex];
+                            const price = selectedOption ? parseFloat(selectedOption.getAttribute('data-price') || 0) : 0;
+                            const quantity = parseInt(quantityInput.value) || 0;
+
+                            const subtotal = price * quantity;
+
+                            priceInput.value = price.toFixed(2);
+                            subtotalInput.value = subtotal.toFixed(2);
+
+                            total += subtotal;
+                        }
+                    });
+
+                    // Update total amount
+                    const totalInput = document.getElementById('total-amount');
+                    if (totalInput) {
+                        totalInput.value = total.toFixed(2);
+                    }
+                }
+
+                // Add item button
+                const addItemBtn = document.getElementById('add-item-btn');
+                const itemsContainer = document.getElementById('sale-items');
+
+                if (addItemBtn && itemsContainer) {
+                    addItemBtn.addEventListener('click', function () {
+                        // Clone the first item row
+                        const firstItem = document.querySelector('.item-row');
+                        const newItem = firstItem.cloneNode(true);
+
+                        // Clear the values in the new item
+                        const selects = newItem.querySelectorAll('select');
+                        const inputs = newItem.querySelectorAll('input');
+
+                        selects.forEach(select => {
+                            select.selectedIndex = 0;
+                        });
+
+                        inputs.forEach(input => {
+                            if (input.classList.contains('quantity-input')) {
+                                input.value = 1;
+                            } else {
+                                input.value = '';
+                            }
+                        });
+
+                        // Add remove button if it's not the first item
+                        if (!newItem.querySelector('.remove-item-btn')) {
+                            const removeBtn = document.createElement('button');
+                            removeBtn.type = 'button';
+                            removeBtn.className = 'btn btn-sm btn-danger remove-item-btn';
+                            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            removeBtn.style.marginTop = '30px';
+                            removeBtn.addEventListener('click', function () {
+                                newItem.remove();
+                                updateSubtotals();
+                            });
+
+                            newItem.appendChild(removeBtn);
+                        }
+
+                        // Add the new item to the container
+                        itemsContainer.appendChild(newItem);
+
+                        // Setup change handlers for the new item
+                        const newProductSelect = newItem.querySelector('.product-select');
+                        const newQuantityInput = newItem.querySelector('.quantity-input');
+
+                        if (newProductSelect) {
+                            newProductSelect.addEventListener('change', updateSubtotals);
+                        }
+
+                        if (newQuantityInput) {
+                            newQuantityInput.addEventListener('input', updateSubtotals);
+                        }
+
+                        // Update subtotals
+                        updateSubtotals();
+                    });
+
+                    // Setup handlers for existing items
+                    const productSelects = document.querySelectorAll('.product-select');
+                    const quantityInputs = document.querySelectorAll('.quantity-input');
+
+                    productSelects.forEach(select => {
+                        select.addEventListener('change', updateSubtotals);
+                    });
+
+                    quantityInputs.forEach(input => {
+                        input.addEventListener('input', updateSubtotals);
+                    });
+                }
+            </script>
+
+            <%- include('../partials/footer') %>

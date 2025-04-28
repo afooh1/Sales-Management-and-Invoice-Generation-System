@@ -1,0 +1,132 @@
+<%- include('../partials/header') %>
+
+    <h1 class="page-title">Edit Sale</h1>
+
+    <% if (typeof error !=='undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+        <% } %>
+
+            <div class="form-container">
+                <h2 class="form-title">Sale Information</h2>
+
+                <form action="/sales/edit/<%= sale._id %>" method="POST" data-validate="true">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="saleID" class="form-label">Sale ID</label>
+                            <input type="text" id="saleID" name="saleID" class="form-control" readonly
+                                value="<%= sale.saleID %>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customer" class="form-label">Customer</label>
+                            <input type="text" class="form-control" readonly
+                                value="<%= sale.customer.name %> (<%= sale.customer.customerID %>)">
+                            <input type="hidden" name="customer" value="<%= sale.customer._id %>">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="saleDate" class="form-label">Sale Date</label>
+                            <input type="date" id="saleDate" name="saleDate" class="form-control"
+                                value="<%= new Date(sale.saleDate).toISOString().split('T')[0] %>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="paymentMethod" class="form-label">Payment Method *</label>
+                            <select id="paymentMethod" name="paymentMethod" class="form-control" required>
+                                <option value="Cash" <%=sale.paymentMethod==='Cash' ? 'selected' : '' %>>Cash</option>
+                                <option value="Credit Card" <%=sale.paymentMethod==='Credit Card' ? 'selected' : '' %>
+                                    >Credit Card</option>
+                                <option value="Debit Card" <%=sale.paymentMethod==='Debit Card' ? 'selected' : '' %>
+                                    >Debit Card</option>
+                                <option value="Bank Transfer" <%=sale.paymentMethod==='Bank Transfer' ? 'selected' : ''
+                                    %>>Bank Transfer</option>
+                                <option value="PayPal" <%=sale.paymentMethod==='PayPal' ? 'selected' : '' %>>PayPal
+                                </option>
+                            </select>
+                            <div id="error-paymentMethod" class="form-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" name="status" class="form-control">
+                            <option value="Completed" <%=sale.status==='Completed' ? 'selected' : '' %>>Completed
+                            </option>
+                            <option value="Pending" <%=sale.status==='Pending' ? 'selected' : '' %>>Pending</option>
+                            <option value="Cancelled" <%=sale.status==='Cancelled' ? 'selected' : '' %>>Cancelled
+                            </option>
+                        </select>
+                    </div>
+
+                    <h3 style="margin-top: 20px; margin-bottom: 10px;">Sale Items</h3>
+
+                    <div class="table-container" style="margin-bottom: 20px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (sale.items && sale.items.length> 0) { %>
+                                    <% sale.items.forEach(item=> { %>
+                                        <tr>
+                                            <td>
+                                                <%= item.product.name %>
+                                            </td>
+                                            <td>$<%= item.price.toFixed(2) %>
+                                            </td>
+                                            <td>
+                                                <%= item.quantity %>
+                                            </td>
+                                            <td>$<%= item.subtotal.toFixed(2) %>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="4" style="text-align: center;">No items in this sale
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" style="text-align: right;">Total Amount:</th>
+                                    <th>$<%= sale.totalAmount.toFixed(2) %>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="form-group">
+                        <p class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Note: Items cannot be modified after a sale is created to
+                            maintain inventory integrity.
+                            To change items, please delete this sale and create a new one.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Update Sale
+                        </button>
+                        <a href="/sales" class="btn btn-warning">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <a href="/pdf/invoice/<%= sale._id %>" class="btn btn-primary" style="float: right;">
+                            <i class="fas fa-file-pdf"></i> Generate Invoice
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <%- include('../partials/footer') %>
